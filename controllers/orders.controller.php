@@ -129,4 +129,27 @@ class OrdersController extends Controller
         }
 
     }
+
+    public function api_new()
+    {
+        $name = htmlspecialchars(trim($_POST["name"]));
+        $phone = htmlspecialchars(trim($_POST["phone"]));
+        $cart = urldecode(trim($_POST["cart"]));
+
+        $cart = json_decode($cart);
+        $products = [];
+        foreach ($cart as $cartItem) {
+            $product = $this->models->product->get($cartItem->id);
+            $col = (int)$cartItem->col;
+            $products[] = [
+                'name' => $product['name'],
+                'col'  => $col,
+                'id'   => $product['id']
+            ];
+        }
+
+        $this->models->order->newFromApp($name, $phone, $products);
+        echo 'ok';
+        exit();
+    }
 }

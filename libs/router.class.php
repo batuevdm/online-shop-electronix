@@ -104,6 +104,7 @@ class Router
             }
 
             $this->params = $pathParts;
+            if ( $this->methodPrefix == 'api_' ) header('Content-type: application/json');
         }
     }
 

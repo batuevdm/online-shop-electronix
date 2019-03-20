@@ -414,4 +414,73 @@ class ProductsController extends Controller
         }
         App::getRouter()->redirect('/dashboard/products/view');
     }
+
+    public function api_get_new()
+    {
+        $products = $this->models->product->getNewProducts(9);
+        $data = [
+            'status'   => 'ok',
+            'products' => $products
+        ];
+
+        echo json_encode($data);
+        exit();
+    }
+
+    public function api_get_category()
+    {
+        $category = (int)$this->params[0];
+        $products = $this->models->product->getByCategory($category, 0, 99999);
+        $data = [
+            'status'   => 'ok',
+            'products' => $products
+        ];
+
+        echo json_encode($data);
+        exit();
+    }
+
+    public function api_get()
+    {
+        $productID = (int)$this->params[0];
+        $product = $this->models->product->get($productID);
+        $photos = $this->models->product->getPhotos($productID);
+        $specs = $this->models->product->getSpecs($productID);
+
+//        var_dump($photos);
+
+        $product['photos'] = (array) $photos;
+        $product['specs'] = (array) $specs;
+        if ($product) {
+            $data = [
+                'status'   => 'ok',
+                'product' => $product
+            ];
+        } else {
+            $data = [
+                'status'   => 'error',
+                'message' => 'Товар не существует'
+            ];
+        }
+
+        echo json_encode($data);
+        exit();
+    }
+
+    public function api_search()
+    {
+        $query = htmlspecialchars(trim($this->getGetParams()["q"]));
+        if (empty($query)) $query = ":none:";
+
+        $products = $this->models->product->search($query, 0, 999999);
+
+        $data = [
+            'status'   => 'ok',
+            'query' => $query,
+            'products' => $products,
+        ];
+
+        echo json_encode($data);
+        exit();
+    }
 }

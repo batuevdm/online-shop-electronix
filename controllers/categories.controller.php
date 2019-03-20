@@ -114,4 +114,31 @@ class CategoriesController extends Controller
         }
         App::getRouter()->redirect('/dashboard/categories/view');
     }
+
+    public function api_get()
+    {
+        $categories = $this->models->categories->getAll();
+
+        $data = [
+            'status' => 'ok',
+            'categories' => $categories
+        ];
+        echo json_encode($data);
+        exit();
+    }
+
+    public function api_one()
+    {
+        $id = (int) $this->params[0];
+        $category = $this->models->categories->getOne($id);
+        $categories = $this->models->categories->subcategories($id);
+
+        $data = [
+            'status' => 'ok',
+            'category' => $category,
+            'subcategories' => $categories
+        ];
+        echo json_encode($data);
+        exit();
+    }
 }

@@ -27,6 +27,34 @@ class OrderModel extends Model
         return $res[0]['COUNT(*)'];
     }
 
+    public function newFromApp($name, $phone, $products)
+    {
+        $name = $this->db->escape($name);
+        $phone = $this->db->escape($phone);
+
+        $productsString = "";
+        $productModel = new ProductModel();
+        foreach ($products as $product) {
+            $productID = $product['id'];
+            $info = $productModel->get($productID);
+            if (!$info) continue;
+
+            $productsString .= $product['name'] . " (" . $product['col'] . ' шт.)' . '<br/>';
+
+            $col = $product['col'];
+            $newCol = $info['col'] - $col;
+            $productModel->updateCol($productID, max(0, $newCol));
+        }
+
+        $data = array(
+            '-DATE-'    => dateFormat(date("d.m.Y H:i")),
+            '-NAME-'    => $name,
+            '-PHONE-'   => $phone,
+            '-PRODUCTS' => $productsString
+        );
+        Mail::send(Config::get('email.orders'), 'New order', 'orderLite', $data);
+    }
+
     public function new($userID, $address, $products)
     {
         $userID = (int)$userID;
